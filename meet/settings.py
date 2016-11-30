@@ -19,9 +19,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '=bf2dkr41@s4agtbbwlw5*n&uufa58q+i7n^!p+8ee9#%v@a=6'
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -71,18 +68,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'meet.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/1.8/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-    'ENGINE': 'django.contrib.gis.db.backends.postgis',
-    'NAME': 'meet',
-    },
-}
-
-
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 
@@ -101,3 +86,5 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_URL = '/static/'
+
+from secrets import *
