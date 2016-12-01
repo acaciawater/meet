@@ -5,6 +5,7 @@ Created on Nov 30, 2016
 '''
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '=bf2dkr41@s4agtbbwlw5*n&uufa58q+i7n^!p+8ee9#%v@a=6'
+GOOGLE_MAPS_API_KEY = 'AIzaSyBZoEnkbR2kagMCHyT-CiuBzJOW3bkexBA'
 
 DATABASES = {
     'default': {
