@@ -21,31 +21,33 @@ function initialize() {
         mapTypeId: google.maps.MapTypeId.{{maptype|default:'SATELLITE'}}
     });
 	var json = {{content|safe}};
-	var bounds = new google.maps.LatLngBounds();
-	var infowindow = new google.maps.InfoWindow();
-	var marker;
-	json.forEach(function(loc) {
-   		marker = new google.maps.Marker({
-   			position: new google.maps.LatLng(loc.lat,loc.lon),
-			icon: {
-			      path: google.maps.SymbolPath.CIRCLE,
-			      scale: 4,
-			      fillColor: 'red',
-			      fillOpacity: 0.8,
-			      strokeColor: 'white',
-			      strokeWeight: 1
-			},
-   			map: map
-   		});
-//    		google.maps.event.addListener(marker, 'click', (function(marker) {
-// 	        return function() {
-// 	          infowindow.setContent(loc.info);
-// 	          infowindow.open(map, marker);
-// 	        }
-// 	      })(marker));
-		bounds.extend(marker.position);
-	});
-	map.fitBounds(bounds);
+	if (json.length > 0) {
+		var bounds = new google.maps.LatLngBounds();
+		var infowindow = new google.maps.InfoWindow();
+		var marker;
+		json.forEach(function(loc) {
+	   		marker = new google.maps.Marker({
+	   			position: new google.maps.LatLng(loc.lat,loc.lon),
+				icon: {
+				      path: google.maps.SymbolPath.CIRCLE,
+				      scale: 4,
+				      fillColor: 'red',
+				      fillOpacity: 0.8,
+				      strokeColor: 'white',
+				      strokeWeight: 1
+				},
+	   			map: map
+	   		});
+	//    		google.maps.event.addListener(marker, 'click', (function(marker) {
+	// 	        return function() {
+	// 	          infowindow.setContent(loc.info);
+	// 	          infowindow.open(map, marker);
+	// 	        }
+	// 	      })(marker));
+			bounds.extend(marker.position);
+		});
+		map.fitBounds(bounds);
+	}
 }
 
 $(function(){initialize();});
