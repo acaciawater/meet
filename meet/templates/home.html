@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Acacia Meet</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key={{api_key}}"></script>
+<style>
+html,body,#map {
+	height: 100%;
+	margin: 0;
+	padding: 0;
+}
+</style>
+<script>
+//Gouda = (52.0214027778, 4.710125)
+var map;
+function initialize() {
+    map = new google.maps.Map(document.getElementById('map'), {
+        zoom: {{zoomlevel|default:12}},
+        center: new google.maps.LatLng(52.0214027778, 4.710125),
+        mapTypeId: google.maps.MapTypeId.{{maptype|default:'SATELLITE'}}
+    });
+	var json = {{content|safe}};
+	var bounds = new google.maps.LatLngBounds();
+	var infowindow = new google.maps.InfoWindow();
+	var marker;
+	json.forEach(function(loc) {
+   		marker = new google.maps.Marker({
+   			position: new google.maps.LatLng(loc.lat,loc.lon),
+			icon: {
+			      path: google.maps.SymbolPath.CIRCLE,
+			      scale: 4,
+			      fillColor: 'red',
+			      fillOpacity: 0.8,
+			      strokeColor: 'white',
+			      strokeWeight: 1
+			},
+   			map: map
+   		});
+//    		google.maps.event.addListener(marker, 'click', (function(marker) {
+// 	        return function() {
+// 	          infowindow.setContent(loc.info);
+// 	          infowindow.open(map, marker);
+// 	        }
+// 	      })(marker));
+		bounds.extend(marker.position);
+	});
+	map.fitBounds(bounds);
+}
+
+$(function(){initialize();});
+</script>
+</head>
+<body>
+<div id='map'></div>
+</body>
+</html>
