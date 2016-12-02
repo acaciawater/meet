@@ -2,8 +2,10 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>Acacia Meet</title>
+<link href="/static/img/boom.ico" rel="icon" type="image/x-ico" />
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script src="https://maps.googleapis.com/maps/api/js?key={{api_key}}"></script>
+<script src="/static/js/fetch.js"></script>
 <style>
 html,body,#map {
 	height: 100%;
@@ -20,34 +22,7 @@ function initialize() {
         center: new google.maps.LatLng(52.0214027778, 4.710125),
         mapTypeId: google.maps.MapTypeId.{{maptype|default:'SATELLITE'}}
     });
-	var json = {{content|safe}};
-	if (json.length > 0) {
-		var bounds = new google.maps.LatLngBounds();
-		var infowindow = new google.maps.InfoWindow();
-		var marker;
-		json.forEach(function(loc) {
-	   		marker = new google.maps.Marker({
-	   			position: new google.maps.LatLng(loc.lat,loc.lon),
-				icon: {
-				      path: google.maps.SymbolPath.CIRCLE,
-				      scale: 4,
-				      fillColor: 'red',
-				      fillOpacity: 0.8,
-				      strokeColor: 'white',
-				      strokeWeight: 1
-				},
-	   			map: map
-	   		});
-	//    		google.maps.event.addListener(marker, 'click', (function(marker) {
-	// 	        return function() {
-	// 	          infowindow.setContent(loc.info);
-	// 	          infowindow.open(map, marker);
-	// 	        }
-	// 	      })(marker));
-			bounds.extend(marker.position);
-		});
-		map.fitBounds(bounds);
-	}
+    fetchPoints('/api/v1/meting/?format=json', map);
 }
 
 $(function(){initialize();});
