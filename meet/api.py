@@ -15,7 +15,7 @@ class UserResource(ModelResource):
         queryset = User.objects.all()
         resource_name = 'user'
         fields = ['username', 'first_name', 'last_name', 'last_login']
-        authentication = BasicAuthentication()
+        authentication = BasicAuthentication(realm='Acacia Meet')
         authorization = DjangoAuthorization()
     
 class MetingResource(ModelResource):
@@ -23,6 +23,6 @@ class MetingResource(ModelResource):
     class Meta:
         queryset = Meting.objects.all()
         resource_name = 'meting'
-        authentication = BasicAuthentication()
+        authentication = BasicAuthentication(realm='Acacia Meet')
         authorization = DjangoAuthorization()
         
