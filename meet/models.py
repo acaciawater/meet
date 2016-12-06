@@ -22,3 +22,7 @@ class Meting(models.Model):
     def __unicode__(self):
         return unicode(self.pk)
     
+    class Meta:
+        verbose_name_plural = 'metingen'
+        
+    
