@@ -1,36 +1,52 @@
 var bounds = null;
 
+function htmlEncode(value) {
+    return $('<div/>').text(value).html();
+} 
+
 function fetchPoints(url,map) {
     $.ajax({
 	    url: url,
 
-	    datatype: "json",
-
-	    // TODO: Authentication
+	    contentType: 'application/json',
 	    
-	    beforeSend: function(hdr) {
-	    	return true;
-	    },
+    	beforeSend: function (xhr) {
+//    	    xhr.setRequestHeader ("Authorization", "Basic " + btoa(username + ":" + password));
+    	},
 	    
 		success: function(data) {
 			if (data.meta.offset == 0) {
 				// first batch of points: clear bounds
 				bounds = new google.maps.LatLngBounds();
 			}
+			var infowindow = new google.maps.InfoWindow();
 			data.objects.forEach(function(point) {
 		   		var marker = new google.maps.Marker({
 		   			position: new google.maps.LatLng(point.latitude,point.longitude),
 					icon: {
 					      path: google.maps.SymbolPath.CIRCLE,
-					      scale: 4,
+					      scale: 5,
 					      fillColor: 'red',
 					      fillOpacity: 0.8,
 					      strokeColor: 'white',
-					      strokeWeight: 1
+					      strokeWeight: 2
 					},
 		   			map: map
 		   		});
-				bounds.extend(marker.position);
+
+		   		google.maps.event.addListener(marker, 'click', (function(marker) {
+		   	        return function() {
+						var html = '<h3>Meting '+point.id+'</h3>'+
+						'<table class="table table-striped"><tr><td>Sensor</td><td>'+point.sensor+'</td></tr>'+
+						'<tr><td>Tijdstip</td><td>'+point.date+'</td></tr>'+
+						'<tr><td>'+point.entity+'</td><td>'+point.value+'&nbsp;'+htmlEncode(point.unit)+'</td></tr>'+
+						'</table>';
+						infowindow.setContent(html);
+						infowindow.open(map, marker);
+		   	        }
+		   		})(marker));
+
+		   		bounds.extend(marker.position);
 			});
 			
 			if (data.meta.next) {

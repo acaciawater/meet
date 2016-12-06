@@ -12,17 +12,23 @@ html,body,#map {
 	margin: 0;
 	padding: 0;
 }
+table {
+	border: 1px solid white;
+}
+//tr {background: Azure}
+td:first-child {font-weight: bold;}
+tr:nth-child(odd) {background: Azure}
 </style>
 <script>
-//Gouda = (52.0214027778, 4.710125)
 var map;
 function initialize() {
+	var gouda = new google.maps.LatLng(52.0214027778, 4.710125);
     map = new google.maps.Map(document.getElementById('map'), {
         zoom: {{zoomlevel|default:12}},
-        center: new google.maps.LatLng(52.0214027778, 4.710125),
+        center: gouda,
         mapTypeId: google.maps.MapTypeId.{{maptype|default:'SATELLITE'}}
     });
-    fetchPoints('/api/v1/meting/?format=json', map);
+    fetchPoints('/api/v1/meting/', map);
 }
 
 $(function(){initialize();});
