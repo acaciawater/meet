@@ -2,6 +2,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from tastypie.models import create_api_key
+from django.template.loader import render_to_string
 
 # auto create api keys
 models.signals.post_save.connect(create_api_key, sender=User)
@@ -21,8 +22,10 @@ class Meting(models.Model):
 
     def __unicode__(self):
         return unicode(self.pk)
-    
+
+    def as_html(self):
+        return render_to_string('meting.html',context={'meting':self})
+        
     class Meta:
         verbose_name_plural = 'metingen'
         
-    
