@@ -36,7 +36,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'meet',
     'tastypie',
-    'django_extensions'
+    'django_extensions' # to test SSL using runserver_plus
 )
 
 MIDDLEWARE_CLASSES = (

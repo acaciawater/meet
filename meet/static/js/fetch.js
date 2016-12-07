@@ -20,18 +20,19 @@ function fetchPoints(url,map) {
 				bounds = new google.maps.LatLngBounds();
 			}
 			var infowindow = new google.maps.InfoWindow();
+
 			data.objects.forEach(function(point) {
 		   		var marker = new google.maps.Marker({
 		   			position: new google.maps.LatLng(point.latitude,point.longitude),
+		   			map: map,
 					icon: {
-					      path: google.maps.SymbolPath.CIRCLE,
-					      scale: 5,
-					      fillColor: 'red',
-					      fillOpacity: 0.8,
-					      strokeColor: 'white',
-					      strokeWeight: 2
-					},
-		   			map: map
+		  			      path: google.maps.SymbolPath.CIRCLE,
+		  			      scale: 5,
+		  			      fillColor: 'red',
+		  			      fillOpacity: 0.8,
+		  			      strokeColor: 'white',
+		  			      strokeWeight: 2
+		  			}
 		   		});
 
 		   		google.maps.event.addListener(marker, 'click', (function(marker) {
