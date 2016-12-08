@@ -5,11 +5,17 @@ Created on Nov 30, 2016
 '''
 from models import Meting
 from django.contrib.auth.models import User
-from tastypie.resources import ModelResource
+from tastypie.resources import ModelResource, ALL, ALL_WITH_RELATIONS
 from tastypie.authorization import DjangoAuthorization
 from tastypie import fields
 from tastypie.authentication import BasicAuthentication
 
+class OpenGETAuthentication(BasicAuthentication):
+    def is_authenticated(self, request, **kwargs):
+        if request.method == 'GET':
+            return True
+        return BasicAuthentication.is_authenticated(self, request, **kwargs)
+    
 class UserResource(ModelResource):
     class Meta:
         queryset = User.objects.all()
@@ -25,4 +31,9 @@ class MetingResource(ModelResource):
         resource_name = 'meting'
         authentication = BasicAuthentication(realm='Acacia Meet')
         authorization = DjangoAuthorization()
+        filtering = {
+            'entity': ALL,
+            'date': ALL,
+            'sensor': ALL
+            }
         
