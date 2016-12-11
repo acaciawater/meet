@@ -2,16 +2,29 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>Acacia Meet</title>
-<link href="/static/img/boom.ico" rel="icon" type="image/x-ico" />
+
+<!-- Google maps API -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script src="https://maps.googleapis.com/maps/api/js?key={{api_key}}"></script>
+
+<!-- Bootstrap -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"/>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous"/>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+<link href="/static/img/boom.ico" rel="icon" type="image/x-ico" />
 <script src="/static/js/fetch.js"></script>
+
 <style>
-html,body,#map {
+html,body,#map,.container-fluid {
 	height: 100%;
 	margin: 0;
 	padding: 0;
 }
+#list {
+	overflow-y: auto;
+}
+
 table { border: 1px solid white; }
 td:first-child { font-weight: bold; }
 tr:nth-child(odd) { background: Azure; }
@@ -25,13 +38,37 @@ function initialize() {
         center: gouda,
         mapTypeId: google.maps.MapTypeId.{{maptype|default:'SATELLITE'}}
     });
-    fetchPoints('/api/v1/meting/', map);
+
+    var geocoder = new google.maps.Geocoder();
+	geocoder.geocode({'address': 'Netherlands'}, function(results, status) {
+	    if (status == 'OK') {
+	      map.fitBounds(results[0].geometry.bounds);
+	    }
+	});
+    fetchPoints('/api/v1/meting/?entity=EC', {
+    	map:map, 
+    	list:document.getElementById('list'),
+    	badge:document.getElementById('badge')
+    });
 }
 
-$(function(){initialize();});
+$(function() {
+	initialize();
+	$("#list").height($("#map").height());
+});
+
 </script>
 </head>
 <body>
-<div id='map'></div>
+<div class="container-fluid">
+<div id='map' class="col-md-9"></div>
+<div class="col-md-3">
+{% block list %}
+<div id="list" class = "list-group scroll">
+<a href="#" class="list-group-item active">Metingen<span id="badge" title="Aantal metingen" class="badge">0</a>
+</div>
+{% endblock list %}
+</div>
+</div>
 </body>
 </html>

@@ -4,7 +4,7 @@ function htmlEncode(value) {
     return $('<div/>').text(value).html();
 } 
 
-function fetchPoints(url,map) {
+function fetchPoints(url,options) {
     $.ajax({
 	    url: url,
 
@@ -20,11 +20,12 @@ function fetchPoints(url,map) {
 				bounds = new google.maps.LatLngBounds();
 			}
 			var infowindow = new google.maps.InfoWindow();
-
+			var count = 0;
 			data.objects.forEach(function(point) {
+				++count;
 		   		var marker = new google.maps.Marker({
 		   			position: new google.maps.LatLng(point.latitude,point.longitude),
-		   			map: map,
+		   			map: options.map,
 					icon: {
 		  			      path: google.maps.SymbolPath.CIRCLE,
 		  			      scale: 5,
@@ -34,7 +35,11 @@ function fetchPoints(url,map) {
 		  			      strokeWeight: 2
 		  			}
 		   		});
+		   		
 
+	   			options.list.insertAdjacentHTML('beforeend','<a href="" class="list-group-item">'+point.sensor+' ('+ point.id+')</a>');
+	   			options.badge.innerHTML = data.meta.offset + count;
+		   		
 		   		google.maps.event.addListener(marker, 'click', (function(marker) {
 		   	        return function() {
 						var html = '<h3>Meting '+point.id+'</h3>'+
@@ -43,7 +48,7 @@ function fetchPoints(url,map) {
 						'<tr><td>'+point.entity+'</td><td>'+point.value+'&nbsp;'+htmlEncode(point.unit)+'</td></tr>'+
 						'</table>';
 						infowindow.setContent(html);
-						infowindow.open(map, marker);
+						infowindow.open(options.map, marker);
 		   	        }
 		   		})(marker));
 
@@ -52,12 +57,12 @@ function fetchPoints(url,map) {
 			
 			if (data.meta.next) {
 				// fetch next batch of points
-				fetchPoints(data.meta.next, map);
+				fetchPoints(data.meta.next, options);
 			}
 			else {
 				// no more points: fit map bounds
-				if (bounds)
-					map.fitBounds(bounds);
+				//if (bounds)
+				//	map.fitBounds(bounds);
 			}
 	    },
 
