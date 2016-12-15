@@ -45,7 +45,7 @@ function initialize() {
 	      map.fitBounds(results[0].geometry.bounds);
 	    }
 	});
-    fetchPoints('/api/v1/meting/?entity=EC', {
+    fetchPoints('/getpoints', {
     	map:map, 
     	list:document.getElementById('list'),
     	badge:document.getElementById('badge')

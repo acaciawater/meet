@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from tastypie.models import create_api_key
 from django.template.loader import render_to_string
 
+
 # auto create api keys
 models.signals.post_save.connect(create_api_key, sender=User)
 
@@ -26,6 +27,20 @@ class Meting(models.Model):
     def as_html(self):
         return render_to_string('meting.html',context={'meting':self})
         
+    def to_dict(self):
+        result = {'latitude' : self.latitude, 
+                  'longitude' : self.longitude,
+                  'elevation' : self.elevation,
+                  'hacc' : self.hacc,
+                  'vacc' : self.vacc,
+                  'sensor' : self.sensor,
+                  'phone' : self.phone,
+                  'entity' : self.entity,
+                  'unit' : self.unit,
+                  'value' : self.value,
+                  'date' : self.date}
+        return result
     class Meta:
         verbose_name_plural = 'metingen'
         
+    

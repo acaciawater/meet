@@ -15,16 +15,13 @@ function fetchPoints(url,options) {
     	},
 	    
 		success: function(data) {
-			if (data.meta.offset == 0) {
-				// first batch of points: clear bounds
-				bounds = new google.maps.LatLngBounds();
-			}
+			bounds = new google.maps.LatLngBounds();
 			var infowindow = new google.maps.InfoWindow();
 			var count = 0;
-			data.objects.forEach(function(point) {
+			data.forEach(function(point) {
 				++count;
 		   		var marker = new google.maps.Marker({
-		   			position: new google.maps.LatLng(point.latitude,point.longitude),
+		   			position: new google.maps.LatLng(point.fields.latitude,point.fields.longitude),
 		   			map: options.map,
 					icon: {
 		  			      path: google.maps.SymbolPath.CIRCLE,
@@ -37,15 +34,15 @@ function fetchPoints(url,options) {
 		   		});
 		   		
 
-	   			options.list.insertAdjacentHTML('beforeend','<a href="" class="list-group-item">'+point.sensor+' ('+ point.id+')</a>');
-	   			options.badge.innerHTML = data.meta.offset + count;
+	   			options.list.insertAdjacentHTML('beforeend','<a href="" class="list-group-item">'+point.fields.sensor+' ('+ point.pk+')</a>');
+	   			options.badge.innerHTML = count;
 		   		
 		   		google.maps.event.addListener(marker, 'click', (function(marker) {
 		   	        return function() {
-						var html = '<h3>Meting '+point.id+'</h3>'+
-						'<table class="table table-striped"><tr><td>Sensor</td><td>'+point.sensor+'</td></tr>'+
-						'<tr><td>Tijdstip</td><td>'+point.date+'</td></tr>'+
-						'<tr><td>'+point.entity+'</td><td>'+point.value+'&nbsp;'+htmlEncode(point.unit)+'</td></tr>'+
+						var html = '<h3>Meting '+point.pk+'</h3>'+
+						'<table class="table table-striped"><tr><td>Sensor</td><td>'+point.fields.sensor+'</td></tr>'+
+						'<tr><td>Tijdstip</td><td>'+point.fields.date+'</td></tr>'+
+						'<tr><td>'+point.entity+'</td><td>'+point.fields.value+'&nbsp;'+htmlEncode(point.fields.unit)+'</td></tr>'+
 						'</table>';
 						infowindow.setContent(html);
 						infowindow.open(options.map, marker);
@@ -55,15 +52,7 @@ function fetchPoints(url,options) {
 		   		bounds.extend(marker.position);
 			});
 			
-			if (data.meta.next) {
-				// fetch next batch of points
-				fetchPoints(data.meta.next, options);
-			}
-			else {
-				// no more points: fit map bounds
-				//if (bounds)
-				//	map.fitBounds(bounds);
-			}
+			map.fitBounds(bounds);
 	    },
 
 	    error: function(hdr,status,errorThrown) {
