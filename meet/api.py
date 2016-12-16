@@ -25,17 +25,17 @@ class UserResource(ModelResource):
         fields = ['username', 'first_name', 'last_name', 'last_login', 'sensors']
         allowed_methods = ['get', 'post', 'put']
         authentication = BasicAuthentication(realm='Acacia Meet')
-#         authorization = DjangoAuthorization()
-        authorization = Authorization()
+        authorization = DjangoAuthorization()
+#         authorization = Authorization()
 
 class SensorResource(ModelResource):
-    user = fields.ForeignKey(UserResource,'user', readonly=True)
+    user = fields.ForeignKey(UserResource,'user')
     class Meta:
         queryset = Sensor.objects.all()
         resource_name = 'sensor'
-#         authentication = BasicAuthentication(realm='Acacia Meet')
-#         authorization = DjangoAuthorization()
-        authorization = Authorization()
+        authentication = BasicAuthentication(realm='Acacia Meet')
+        authorization = DjangoAuthorization()
+#         authorization = Authorization()
         
 class MetingResource(ModelResource):
     #user = fields.ForeignKey(UserResource,'user')
@@ -49,7 +49,6 @@ class MetingResource(ModelResource):
             'date': ALL,
             'sensor': ALL
             }
-
 
 class UserProfileDataResource(ModelResource):
     user = fields.ForeignKey(UserResource,'user')
