@@ -26,7 +26,7 @@ class UserResource(ModelResource):
         allowed_methods = ['get', 'post', 'put']
         authentication = BasicAuthentication(realm='Acacia Meet')
         authorization = DjangoAuthorization()
-#         authorization = Authorization()
+
 
 class SensorResource(ModelResource):
     user = fields.ForeignKey(UserResource,'user')
@@ -36,6 +36,7 @@ class SensorResource(ModelResource):
         authentication = BasicAuthentication(realm='Acacia Meet')
         authorization = DjangoAuthorization()
         filtering = {'sensor_id':ALL}
+        
         
 class MetingResource(ModelResource):
     #user = fields.ForeignKey(UserResource,'user')
