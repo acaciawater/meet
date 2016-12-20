@@ -19,6 +19,9 @@ class Sensor(models.Model):
     sensor_type = models.CharField(max_length=16,choices=SENSOR_TYPES,default='EC')
     assigned = models.DateTimeField()
 
+    def __str__(self):
+            return self.sensor_id
+
 class UserProfileData(models.Model):
     user = models.OneToOneField(User)
     street = models.CharField(max_length=255,null=True,default='')
