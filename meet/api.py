@@ -36,6 +36,7 @@ class SensorResource(ModelResource):
         authentication = BasicAuthentication(realm='Acacia Meet')
         authorization = DjangoAuthorization()
         filtering = {'sensor_id':ALL}
+        allowed_methods = ['get', 'post', 'put']
         
         
 class MetingResource(ModelResource):
