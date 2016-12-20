@@ -3,12 +3,12 @@ from django.http.response import HttpResponse
 from django.shortcuts import render
 from django.conf import settings
 from pip._vendor import requests
-from .models import Meting
+from models import Meting, User
 
 def home(request):
     return render(request, 'home.html', context = {'api_key': settings.GOOGLE_MAPS_API_KEY})
 
-
+# User.objects.all() / u.sensor_Set.all()
 def getpoints(request):
     sensor_id = request.GET.urlencode().split('=')[1]
     u = Meting.objects.filter(sensor=sensor_id)

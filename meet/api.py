@@ -35,10 +35,11 @@ class SensorResource(ModelResource):
         resource_name = 'sensor'
         authentication = BasicAuthentication(realm='Acacia Meet')
         authorization = DjangoAuthorization()
-#         authorization = Authorization()
+        filtering = {'sensor_id':ALL}
         
 class MetingResource(ModelResource):
     #user = fields.ForeignKey(UserResource,'user')
+    sensor_pk= fields.ForeignKey(SensorResource, 'sensor_pk')
     class Meta:
         queryset = Meting.objects.all()
         resource_name = 'meting'

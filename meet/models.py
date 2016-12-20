@@ -29,6 +29,7 @@ class UserProfileData(models.Model):
     country = models.CharField(max_length=255,default='NL')
 
 class Meting(models.Model):
+    sensor_pk = models.ForeignKey(Sensor)
     latitude = models.FloatField()
     longitude = models.FloatField()
     elevation = models.FloatField(null=True)
