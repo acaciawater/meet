@@ -94,9 +94,11 @@ function fillTable(url, options){
 	    
 		success: function(data) {
 			var count = 0;
-			data.forEach(function(object) {
+			console.log(data[1])
+			var nr_of_measurements = data[1]
+			data[0].forEach(function(object) {
 				++count;
-				options.list.insertAdjacentHTML('beforeend','<a href="javascript:pressLink('+object.pk+')" class="list-group-item">'+object.fields.username+' ('+ object.pk+')</a>');
+				options.list.insertAdjacentHTML('beforeend','<a href="javascript:pressLink('+object.pk+')" class="list-group-item">'+object.fields.username+'<span id="badge" class="badge">'+nr_of_measurements[object.fields.username]+'</a>');
 	   			options.badge.innerHTML = count;
 			});
 	    },
