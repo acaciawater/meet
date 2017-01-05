@@ -33,10 +33,6 @@ function fetchPoints(url,options) {
 		  			}
 		   		});
 		   		
-
-	   			options.list.insertAdjacentHTML('beforeend','<a href="" class="list-group-item">'+point.fields.sensor+' ('+ point.pk+')</a>');
-	   			options.badge.innerHTML = count;
-		   		
 		   		google.maps.event.addListener(marker, 'click', (function(marker) {
 		   	        return function() {
 						var html = '<h3>Meting '+point.pk+'</h3>'+
@@ -52,11 +48,61 @@ function fetchPoints(url,options) {
 		   		bounds.extend(marker.position);
 			});
 			
+		    if (bounds.getNorthEast().equals(bounds.getSouthWest())) {
+		        var extendPoint1 = new google.maps.LatLng(bounds.getNorthEast().lat() + 0.1, bounds.getNorthEast().lng() + 0.1);
+		        var extendPoint2 = new google.maps.LatLng(bounds.getNorthEast().lat() - 0.1, bounds.getNorthEast().lng() - 0.1);
+		        bounds.extend(extendPoint1);
+		        bounds.extend(extendPoint2);
+		     }
+			
 			map.fitBounds(bounds);
+
 	    },
 
 	    error: function(hdr,status,errorThrown) {
 	    	//alert("Fout tijdens laden van punten: " + errorThrown);
+	    },
+
+	    complete: function(hdr, status) {
+	    }
+    });
+}
+
+
+function pressLink(pk) {
+	var url = '/getpoints?user='+pk;
+    fetchPoints(url, {
+    	map:map, 
+    });
+//    fillTable('/getusers', {
+//    	list:document.getElementById('list'),
+//    	badge:document.getElementById('badge')
+//    });
+}
+
+
+function fillTable(url, options){
+	
+    $.ajax({
+	    url: url,
+
+	    contentType: 'application/json',
+	    
+    	beforeSend: function (xhr) {
+//    	    xhr.setRequestHeader ("Authorization", "Basic " + btoa(username + ":" + password));
+    	},
+	    
+		success: function(data) {
+			var count = 0;
+			data.forEach(function(object) {
+				++count;
+				options.list.insertAdjacentHTML('beforeend','<a href="javascript:pressLink('+object.pk+')" class="list-group-item">'+object.fields.username+' ('+ object.pk+')</a>');
+	   			options.badge.innerHTML = count;
+			});
+	    },
+
+	    error: function(hdr,status,errorThrown) {
+	    	//alert("Fout tijdens laden van de tabel: " + errorThrown);
 	    },
 
 	    complete: function(hdr, status) {

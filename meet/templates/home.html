@@ -45,8 +45,10 @@ function initialize() {
 	      map.fitBounds(results[0].geometry.bounds);
 	    }
 	});
-    fetchPoints('/getpoints?sensor_id=WaterEC197', {
+    fetchPoints('/getpoints', {
     	map:map, 
+    });
+    fillTable('/getusers', {
     	list:document.getElementById('list'),
     	badge:document.getElementById('badge')
     });
