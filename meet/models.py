@@ -1,9 +1,16 @@
 # -*- coding: utf-8 -*-
+'''
+@author: stephane
+'''
+
 from django.db import models
 from django.contrib.auth.models import User
 from tastypie.models import create_api_key
 from django.template.loader import render_to_string
 from django.core.validators import RegexValidator
+import util
+
+
 PostalCodeValidator = RegexValidator(regex=r'^\d{4}\s*[A-Z]{2}$', message="Ongeldige postcode")
 SENSOR_TYPES = (
      ('EC', 'Sodaq EC Meter'),
@@ -12,6 +19,16 @@ SENSOR_TYPES = (
  
 # auto create api keys
 models.signals.post_save.connect(create_api_key, sender=User)
+
+# syntax voor pre save fnctionaliteit
+# def randomfunction():
+#     zet hier je meting toevoegen functionaliteit in.
+# 
+# models.signals.pre_save.connect(randomfunction, sender=Meting)
+
+class Meetpunt(models.Model):
+    latitude = models.FloatField()
+    longitude = models.FloatField()
 
 class Sensor(models.Model):
     user = models.ForeignKey(User)
@@ -32,6 +49,7 @@ class UserProfileData(models.Model):
     country = models.CharField(max_length=255,default='NL')
 
 class Meting(models.Model):
+    meetpunt = models.ForeignKey(Meetpunt,null=True,blank=True)
     sensor_pk = models.ForeignKey(Sensor)
     latitude = models.FloatField()
     longitude = models.FloatField()
@@ -64,7 +82,45 @@ class Meting(models.Model):
                   'value' : self.value,
                   'date' : self.date}
         return result
+
+
+    def assignMeetpunt(self):
+        meetpunt = self.findMeetpunt() 
+        if meetpunt:
+            self.meetpunt_id = meetpunt
+            self.save()
+        # log that it cant assign meetpunt
+        
+
+    def findMeetpunt(self):
+        if self.hacc > 25:
+            return None
+        else:
+            within_range = []
+            for mp in Meetpunt.objects.all():
+                if util.is_in_range(self, mp, 25):
+                    within_range.append(mp)
+        if len(within_range)== 0:
+            mp = Meetpunt()
+            mp.latitude = self.latitude
+            mp.longitude = self.longitude
+            mp.save()
+            return mp
+#              log mp created and assigned
+        elif len(within_range)== 1:
+            return within_range[0]
+        else:
+            closest = None
+            for mp in within_range:
+                if closest == None:
+                    closest = mp
+                else:
+                    if util.distance(self, mp) < util.distance(self, closest):
+                        closest = mp
+            return closest                
+             
+    
     class Meta:
         verbose_name_plural = 'metingen'
-        
     
+

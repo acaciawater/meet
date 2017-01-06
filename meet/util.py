@@ -5,6 +5,7 @@ Created on Dec 9, 2016
 '''
 import requests
 from django.conf import settings
+from math import sin, cos, sqrt, atan2, radians
 
 class PostcodeException(Exception):
     def __init__(self,response):
@@ -39,3 +40,19 @@ def check_postcode(postcode):
     else:
         raise PostcodeException(response)
 
+def distance(obj1, obj2):
+    R = 6373.0
+    lat1 = radians(obj1.latitude)
+    lon1 = radians(obj1.longitude)
+    lat2 = radians(obj2.latitude)
+    lon2 = radians(obj2.longitude)
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1    
+    a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+    return R * c * 1000
+    
+def is_in_range(obj1,obj2,meters):
+    ''' check if two locations are within range'''
+    return distance(obj1,obj2) <= meters
+    
