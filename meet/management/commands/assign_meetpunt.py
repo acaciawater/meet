@@ -15,5 +15,4 @@ class Command(BaseCommand):
         metingen_without_meetpunt = Meting.objects.filter(meetpunt__isnull=True)
         for m in metingen_without_meetpunt:
             m.assignMeetpunt()
-#     
-#         print 'bla'
+            m.save()

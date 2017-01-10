@@ -8,8 +8,7 @@ from django.contrib.auth.models import User
 from tastypie.models import create_api_key
 from django.template.loader import render_to_string
 from django.core.validators import RegexValidator
-import util
-
+import util, logging
 
 PostalCodeValidator = RegexValidator(regex=r'^\d{4}\s*[A-Z]{2}$', message="Ongeldige postcode")
 SENSOR_TYPES = (
@@ -20,11 +19,6 @@ SENSOR_TYPES = (
 # auto create api keys
 models.signals.post_save.connect(create_api_key, sender=User)
 
-# syntax voor pre save fnctionaliteit
-# def randomfunction():
-#     zet hier je meting toevoegen functionaliteit in.
-# 
-# models.signals.pre_save.connect(randomfunction, sender=Meting)
 
 class Meetpunt(models.Model):
     latitude = models.FloatField()
@@ -88,12 +82,11 @@ class Meting(models.Model):
         meetpunt = self.findMeetpunt() 
         if meetpunt:
             self.meetpunt_id = meetpunt
-            self.save()
-        # log that it cant assign meetpunt
         
-
     def findMeetpunt(self):
+#         logger = logging.getLogger(__name__)
         if self.hacc > 25:
+#             logger.debug('Cannot assign meting %s to a meetpunt, horizontal accuracy (%d) is too high' %(self, self.hacc))
             return None
         else:
             within_range = []
@@ -123,4 +116,11 @@ class Meting(models.Model):
     class Meta:
         verbose_name_plural = 'metingen'
     
+def assignMetingPostSave(sender, instance, *args, **kwargs):
+    instance.assignMeetpunt()
+    models.signals.post_save.disconnect(assignMetingPostSave, sender=Meting)
+    instance.save()
+    models.signals.post_save.connect(assignMetingPostSave, sender=Meting)
+ 
+models.signals.post_save.connect(assignMetingPostSave, sender=Meting)
 
