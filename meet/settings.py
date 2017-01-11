@@ -90,4 +90,34 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR,'static')
 
+LOGGING_ROOT = os.path.join(BASE_DIR, 'logs')
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'filename': os.path.join(LOGGING_ROOT, 'meet.log'),
+            'when': 'D',
+            'interval': 7,
+            'backupCount': 0,
+            'formatter': 'default'
+            }
+        },
+    'formatters': {
+        'default': {
+            'format': '%(levelname)s %(asctime) %(name)s: %(message)s'
+        },
+    },
+    'loggers': {
+        'django.request': {
+        'handlers': ['file',],
+        'level': 'DEBUG',
+        'propagate': True,
+        },
+    },
+}
+
 from secrets import *
