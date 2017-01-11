@@ -31,6 +31,7 @@ tr:nth-child(odd) { background: Azure; }
 </style>
 <script>
 var map;
+var markers = [];
 function initialize() {
 	var gouda = new google.maps.LatLng(52.0214027778, 4.710125);
     map = new google.maps.Map(document.getElementById('map'), {
@@ -45,7 +46,7 @@ function initialize() {
 	      map.fitBounds(results[0].geometry.bounds);
 	    }
 	});
-    fetchPoints('/getpoints', {
+    fetchPoints('/getseries', {
     	map:map, 
     });
     fillTable('/getusers?filter=with_measurements', {

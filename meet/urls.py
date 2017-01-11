@@ -22,4 +22,5 @@ urlpatterns = [
     url(r'^api/', include(v1.urls)),
     url(r'^getusers/', views.getusers),
     url(r'^getpoints/', views.getpoints),
+    url(r'^getseries/', views.getseries),
     ]

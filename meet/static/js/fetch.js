@@ -3,6 +3,16 @@ var bounds = null;
 function htmlEncode(value) {
     return $('<div/>').text(value).html();
 } 
+function setMapOnAll(map) {
+    for (var i = 0; i < markers.length; i++) {
+        markers[i].setMap(map);
+    }
+}
+
+  
+function clearMarkers() {
+    setMapOnAll(null);
+}
 
 function fetchPoints(url,options) {
     $.ajax({
@@ -15,6 +25,7 @@ function fetchPoints(url,options) {
     	},
 	    
 		success: function(data) {
+			clearMarkers();
 			bounds = new google.maps.LatLngBounds();
 			var infowindow = new google.maps.InfoWindow();
 			var count = 0;
@@ -32,6 +43,7 @@ function fetchPoints(url,options) {
 		  			      strokeWeight: 2
 		  			}
 		   		});
+		   		markers.push(marker);
 		   		
 		   		google.maps.event.addListener(marker, 'click', (function(marker) {
 		   	        return function() {
@@ -70,7 +82,7 @@ function fetchPoints(url,options) {
 
 
 function pressLink(pk) {
-	var url = '/getpoints?user='+pk;
+	var url = '/getseries?user='+pk;
     fetchPoints(url, {
     	map:map, 
     });
