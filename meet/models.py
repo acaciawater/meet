@@ -23,6 +23,9 @@ models.signals.post_save.connect(create_api_key, sender=User)
 class Meetpunt(models.Model):
     latitude = models.FloatField()
     longitude = models.FloatField()
+    
+    def __str__(self):
+        return str(self.id)
 
 class Sensor(models.Model):
     user = models.ForeignKey(User)
@@ -31,7 +34,7 @@ class Sensor(models.Model):
     assigned = models.DateTimeField()
 
     def __str__(self):
-            return self.sensor_id
+        return self.sensor_id
 
 class UserProfileData(models.Model):
     user = models.OneToOneField(User)
