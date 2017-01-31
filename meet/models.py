@@ -3,12 +3,16 @@
 @author: stephane
 '''
 
+import util, logging, os
+import pandas as pd
 from django.db import models
+from django.utils.text import slugify
 from django.contrib.auth.models import User
 from tastypie.models import create_api_key
 from django.template.loader import render_to_string
 from django.core.validators import RegexValidator
-import util, logging
+from django.conf import settings
+from django.core.files.storage import FileSystemStorage
 
 PostalCodeValidator = RegexValidator(regex=r'^\d{4}\s*[A-Z]{2}$', message="Ongeldige postcode")
 SENSOR_TYPES = (
@@ -23,9 +27,54 @@ models.signals.post_save.connect(create_api_key, sender=User)
 class Meetpunt(models.Model):
     latitude = models.FloatField()
     longitude = models.FloatField()
+    name = models.CharField(max_length=200, null=True)
+    end = models.DateTimeField(null=True, blank=True)
+    start = models.DateTimeField(null=True, blank=True)
+    thumbnail = models.ImageField(upload_to=util.thumbnail_upload,
+                                  max_length=200, blank=True, null=True)
     
     def __str__(self):
         return str(self.id)
+    
+    def assignStartEnd(self):
+        metingen = self.meting_set.all()
+        if metingen.count() == 0:
+            # log cant assign start end, no meetpunt
+            pass
+        if metingen.count() == 1:
+            datum = metingen[0].date
+            self.end = datum
+            self.start = datum
+        else:
+            m = self.meting_set.order_by('date', 'pk')
+            self.start = m[0].date
+            self.end = m[len(m)-1].date
+
+    def to_pandas(self):
+        metingen = self.meting_set.all()
+        dates = [meting.date for meting in metingen]
+        values = [meting.value for meting in metingen]
+        return pd.Series(values,index=dates,name=self.name).sort_index()
+    
+    def make_thumbnail(self):
+#         logger = self.getLogger()
+#         logger.debug('Generating thumbnail for series %s' % self.name)
+        try:
+            if self.meting_set.all().count() != 0:
+                series = self.to_pandas()
+                dest =  slugify(unicode(self.name))+'.png'
+                self.thumbnail.name = dest
+                imagefile = os.path.join(settings.MEDIA_ROOT, 'thumbnails', dest)
+                imagedir = os.path.dirname(imagefile)
+                if not os.path.exists(imagedir):
+                    os.makedirs(imagedir)
+                util.save_thumbnail(series, imagefile)
+#             logger.debug('Generated thumbnail %s' % dest)
+
+        except Exception as e:
+#             logger.exception('Error generating thumbnail: %s' % e)
+            pass
+        return self.thumbnail
 
 class Sensor(models.Model):
     user = models.ForeignKey(User)
@@ -85,6 +134,7 @@ class Meting(models.Model):
         meetpunt = self.findMeetpunt() 
         if meetpunt:
             self.meetpunt_id = meetpunt
+        return meetpunt
         
     def findMeetpunt(self):
 #         logger = logging.getLogger(__name__)
@@ -120,10 +170,13 @@ class Meting(models.Model):
         verbose_name_plural = 'metingen'
     
 def assignMetingPostSave(sender, instance, *args, **kwargs):
-    instance.assignMeetpunt()
+    ''' assigns meetpunt to meting and updates start/end for meetpunt '''
+    meetpunt = instance.assignMeetpunt()
     models.signals.post_save.disconnect(assignMetingPostSave, sender=Meting)
     instance.save()
     models.signals.post_save.connect(assignMetingPostSave, sender=Meting)
- 
+    meetpunt.assignStartEnd()
+    meetpunt.save()
+
 models.signals.post_save.connect(assignMetingPostSave, sender=Meting)
 
