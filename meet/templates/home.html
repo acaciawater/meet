@@ -1,3 +1,5 @@
+{% load staticfiles %}
+{% load static %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -12,6 +14,11 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous"/>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
+<!-- Datepicker -->
+<script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+<link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
+
 <link href="/static/img/boom.ico" rel="icon" type="image/x-ico" />
 <script src="/static/js/fetch.js"></script>
 
@@ -25,6 +32,36 @@ html,body,#map,.container-fluid {
 	overflow-y: auto;
 }
 
+#test{
+position: fixed;
+z-index:105;
+
+}
+
+#datepicker {
+    cursor: pointer;
+    padding: 5px 10px;
+	position:absolute;
+	right: 30px;
+	top: 0px;
+	/* display:none; */
+	margin:19px 0 0 20px;
+	height: 30px;
+	color: #999;
+	font-size: small;
+	-webkit-box-shadow:rgba(0,0,0,.2) 0 0 4px 2px;
+	-moz-box-shadow:rgba(0,0,0,.2) 0 0 4px 2px;
+	box-shadow:rgba(0,0,0,.2) 0 0 4px 2px;
+	background:#fff;
+	-webkit-border-radius:4px;
+	-moz-border-radius:4px;
+	-ms-border-radius:4px;
+	-o-border-radius:4px;
+	border-radius:4px;
+	border:1px solid #999;
+	z-index:105
+}
+
 table { border: 1px solid white; }
 td:first-child { font-weight: bold; }
 tr:nth-child(odd) { background: Azure; }
@@ -32,6 +69,7 @@ tr:nth-child(odd) { background: Azure; }
 <script>
 var map;
 var markers = [];
+var current_user = '';
 function initialize() {
 	var gouda = new google.maps.LatLng(52.0214027778, 4.710125);
     map = new google.maps.Map(document.getElementById('map'), {
@@ -54,24 +92,89 @@ function initialize() {
     	badge:document.getElementById('badge')
     });
 }
-
+function isInt(value) {
+	  return !isNaN(value) && 
+	         parseInt(Number(value)) == value && 
+	         !isNaN(parseInt(value, 10));
+	}
+	
 $(function() {
 	initialize();
 	$("#list").height($("#map").height());
+	
+	function filter(start, end, user){
+		if (isInt(current_user)){
+			var url = '/getseries?user='+user+'&start='+start+'&end='+end;
+		} else{
+			var url = '/getseries?start='+start+'&end='+end;
+		}; 
+		fetchPoints(url, {
+	    	map:map, 
+	    });
+	}
+	
+	/* var url = '/getseries?user='+pk;
+    fetchPoints(url, {
+    	map:map, 
+    }); */
+	
+	
+ 	function apply(start, end) {
+		theStart = start;
+		$('#datepicker span').html(start.format('D MMMM, YYYY') + ' - ' + end.format('D MMMM, YYYY'));
+		var fromdate = start.format('MM-DD-YYYY');
+		filter(start, end, current_user);
+	};
+	
+	moment.locale('nl-NL');
+	$('#datepicker').daterangepicker({
+    	"applyClass": "btn-primary",
+    	"singleDatePicker": false,
+    	"locale": {
+            "format": "D MMM YYYY",
+            "separator": " - ",
+            "applyLabel": "Ok",
+            "cancelLabel": "Filter verwijderen",
+            "fromLabel": "Van",
+            "toLabel": "Tot",
+            "customRangeLabel": "Handmatig",
+            "daysOfWeek": ["Zo", "Ma", "Di", "Wo", "Do", "Vr", "Za"],
+            "monthNamesShort": ["Jan", "Feb", "Mrt", "Apr", "Mei", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec"],
+            "monthNames": ["Januari", "Februari", "Maart", "April", "Mei", "Juni", "Juli", "Augustus", "September", "Oktober", "November", "December"],
+            "firstDay": 1
+        },
+        ranges: {
+           'Alleen Vandaag': [moment(), moment()],
+           'Gisteren': [moment().subtract(1, 'days'), moment()],
+           'Afgelopen week': [moment().subtract(6, 'days'), moment()],
+           'Afgelopen maand': [moment().subtract(1, 'month'), moment()],
+           'Afgelopen twee maanden': [moment().subtract(2, 'month'), moment()],
+        }
+    }, apply);
+	
+ 	$('#datepicker').on('cancel.daterangepicker', function(ev, picker) {
+    	// clear range and requery
+        $('#datepicker span').html('');
+  	  	// filter("01-01-1970");
+    }); 
 });
 
 </script>
 </head>
 <body>
 <div class="container-fluid">
-<div id='map' class="col-md-9"></div>
-<div class="col-md-3">
-{% block list %}
-<div id="list" class = "list-group scroll">
-<a href="#" class="list-group-item active">Gebruikers<span id="badge" title="Aantal metingen" class="badge">0</a>
-</div>
-{% endblock list %}
-</div>
+	<div class = "col-md-9">
+		<div id="datepicker" title="filter op datum" class = "pull-right"><i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;<span></span></div>
+	</div>
+	<div id='map' class="col-md-9"></div>
+	<div class="col-md-3">
+		{% block list %}
+		<div id="list" class = "list-group scroll">
+			<a href="#" class="list-group-item active">Gebruikers<span id="badge" title="Aantal metingen" class="badge">0</a>
+		</div>
+		
+		{% endblock list %}
+	</div>
 </div>
 </body>
 </html>
