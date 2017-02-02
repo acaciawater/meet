@@ -9,6 +9,8 @@ from django.contrib import admin
 from tastypie.api import Api
 from views import home
 from . import views
+from django.conf.urls.static import static
+from django.conf import settings
 
 v1 = Api(api_name='v1')
 v1.register(MetingResource())
@@ -23,4 +25,9 @@ urlpatterns = [
     url(r'^getusers/', views.getusers),
     url(r'^getpoints/', views.getpoints),
     url(r'^getseries/', views.getseries),
-    ]
+
+    ] +  static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
+
