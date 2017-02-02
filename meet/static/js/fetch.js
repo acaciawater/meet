@@ -15,9 +15,9 @@ function clearMarkers() {
 }
 
 function fetchPoints(url,options) {
-    $.ajax({
+    
+	$.ajax({
 	    url: url,
-
 	    contentType: 'application/json',
 	    
     	beforeSend: function (xhr) {
@@ -29,7 +29,7 @@ function fetchPoints(url,options) {
 			bounds = new google.maps.LatLngBounds();
 			var infowindow = new google.maps.InfoWindow();
 			var count = 0;
-			data.forEach(function(point) {
+			data[0].forEach(function(point) {
 				++count;
 		   		var marker = new google.maps.Marker({
 		   			position: new google.maps.LatLng(point.fields.latitude,point.fields.longitude),
@@ -47,10 +47,11 @@ function fetchPoints(url,options) {
 		   		
 		   		google.maps.event.addListener(marker, 'click', (function(marker) {
 		   	        return function() {
+		   	        	thumbnail_data = data[1][point.pk]
 						var html = '<h3>Meting '+point.pk+'</h3>'+
-						'<table class="table table-striped"><tr><td>Sensor</td><td>'+point.fields.sensor+'</td></tr>'+
-						'<tr><td>Tijdstip</td><td>'+point.fields.date+'</td></tr>'+
-						'<tr><td>'+point.entity+'</td><td>'+point.fields.value+'&nbsp;'+htmlEncode(point.fields.unit)+'</td></tr>'+
+						'<table class="table table-striped"><tr><td>Naam: '+point.fields.name+'</td></tr>'+
+						'<tr><td><img src='+thumbnail_data['url']+' width=420 height=140></img></td></tr>'+
+						'<tr><td>'+thumbnail_data['entity']+': '+thumbnail_data['unit']+'</td></tr>'+
 						'</table>';
 						infowindow.setContent(html);
 						infowindow.open(options.map, marker);
@@ -82,6 +83,7 @@ function fetchPoints(url,options) {
 
 
 function pressLink(pk) {
+	current_user = pk;
 	var url = '/getseries?user='+pk;
     fetchPoints(url, {
     	map:map, 
