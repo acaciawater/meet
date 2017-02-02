@@ -5,7 +5,13 @@ Created on Dec 9, 2016
 '''
 import requests
 from django.conf import settings
+from django.utils.text import slugify
 from math import sin, cos, sqrt, atan2, radians
+import matplotlib.pylab as plt
+
+# thumbnail size and resolution
+THUMB_DPI=72
+THUMB_SIZE=(9,3) # inch
 
 class PostcodeException(Exception):
     def __init__(self,response):
@@ -55,4 +61,22 @@ def distance(obj1, obj2):
 def is_in_range(obj1,obj2,meters):
     ''' check if two locations are within range'''
     return distance(obj1,obj2) <= meters
-    
+
+def thumbnail_upload(object, filename):
+    return '/media/thumbnails/%s' % filename
+
+def save_thumbnail(pandas_series,imagefile):
+    plt.figure(figsize=THUMB_SIZE,dpi=THUMB_DPI)
+    try:
+        n = pandas_series.count() / (THUMB_SIZE[0]*THUMB_DPI)
+        if n > 1:
+            #use data thinning: take very nth row
+            src = pandas_series.iloc[::n]
+        else:
+            src = pandas_series
+        options = {'grid': False, 'legend': False}
+        src.plot(**options)
+        plt.savefig(imagefile,transparent=True)
+    except:
+        pass
+    plt.close()
